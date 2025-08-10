@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Jogo: Pedra, Papel e Tesoura (Mediapipe Hands)</title>
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Jogo: Pedra, Papel e Tesoura — com sua mão</h1>
+        <div class="small">Modo de depuração ativado — mensagens úteis aparecerão abaixo</div>
+      </header>
+
+      <div class="stage">
+        <div class="video-wrap">
+          <video id="video" playsinline muted></video>
+          <canvas id="output" width="640" height="480"></canvas>
+          <div id="overlay" class="overlay hidden">
+            <div class="result-cards" id="resultCards">
+              <div class="card" id="playerCard">
+                <div class="label">Você</div>
+                <div class="emoji" id="playerEmoji">✊</div>
+                <div class="choice" id="playerChoice">pedra</div>
+              </div>
+              <div class="vs">VS</div>
+              <div class="card" id="computerCard">
+                <div class="label">Computador</div>
+                <div class="emoji" id="computerEmoji">✊</div>
+                <div class="choice" id="computerChoice">pedra</div>
+              </div>
+            </div>
+            <div class="winner-banner" id="winnerBanner">Empate</div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:260px">
+          <div class="panel">
+            <div class="controls">
+              <button id="startBtn" class="primary">Iniciar câmera</button>
+              <button id="retryBtn">Tentar novamente</button>
+              <button id="stopBtn">Parar</button>
+            </div>
+
+            <div class="status">Estado: <span id="state">—</span></div>
+            <div class="hint">Dica: faça um joinha 👍 para iniciar a contagem de 3 segundos. Em seguida mostre
+              pedra ✊, papel ✋ ou tesoura ✌️ para jogar.</div>
+
+            <hr style="margin:10px 0">
+
+            <div>
+              <label for="fileInput" style="cursor:pointer;color:#0069ff">Carregar vídeo de teste (se câmera não estiver
+                disponível)</label>
+              <input id="fileInput" type="file" accept="video/*">
+            </div>
+
+            <div class="help" id="helpBox"></div>
+          </div>
+
+          <div class="debug" id="debug"></div>
+        </div>
+      </div>
+
+      <div class="hint">Observação: para acessar a câmera o site precisa ser servido em <strong>HTTPS</strong> ou em
+        <strong>localhost</strong>. Se você abrir o arquivo localmente (file://) alguns navegadores bloqueiam o acesso à
+        câmera. Se receber "Permissão negada", revise as permissões do navegador ou execute um servidor local.</div>
+    </div>
+
+    <!-- MediaPipe (Hands + utils) via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+    <script src="assets/js/app.js"></script>
+  </body>
+  </html>
+
+

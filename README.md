@@ -2,9 +2,11 @@
 
 Assista ao demo do projeto:
 
-- [▶️ Assistir/baixar o demo (`demo.mov`)](demo.mov)
+![Demonstração do jogo](assets/img/demo.gif)
 
-Nota: o GitHub não renderiza players de vídeo no README. Use o link acima para abrir ou baixar o arquivo.
+- [▶️ Assistir/baixar o vídeo original (`demo.mov`)](demo.mov)
+
+Nota: o GitHub não renderiza players de vídeo no README. O GIF acima é uma prévia; use o link para abrir/baixar o arquivo original.
 
 ---
 

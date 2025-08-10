@@ -1,10 +1,10 @@
 ### Demo em vídeo
 
-Assista ao demo abaixo para ver o jogo em ação:
+Assista ao demo do projeto:
 
-<video src="demo.mov" controls playsinline style="max-width: 100%; height: auto; border-radius: 8px;"></video>
+- [▶️ Assistir/baixar o demo (`demo.mov`)](demo.mov)
 
-Se o player não carregar, você pode baixar e assistir ao arquivo `demo.mov`.
+Nota: o GitHub não renderiza players de vídeo no README. Use o link acima para abrir ou baixar o arquivo.
 
 ---
 

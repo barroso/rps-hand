@@ -62,3 +62,7 @@ Obs.: A detecção usa regras simples sobre os landmarks do MediaPipe e uma suav
 Uso educacional/demonstração. MediaPipe pertence ao Google e segue sua própria licença.
 
 
+### Leitura recomendada
+- Detalhes práticos sobre o ecossistema MediaPipe (Hands clássico vs Tasks) e dicas de robustez: consulte `MEDIAPIPE_SOLUTIONS.md` neste repositório.
+
+

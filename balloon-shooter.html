@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tiro ao Alvo com o dedo — MediaPipe Hands</title>
+    <link rel="stylesheet" href="assets/css/app.css" />
+    <style>
+      .hud { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+      .chip { background:#0b1220; color:#e2e8f0; border-radius:999px; padding:6px 12px; font-weight:700; }
+      .chip .value { color:#10b981; margin-left:6px; }
+      .controls button { margin-right:8px; }
+      .stage { align-items: stretch; }
+      .video-wrap { position:relative; width: 100%; max-width: 800px; }
+      #output { width:100%; height:auto; display:block; background:#0b1220; border-radius:12px; }
+      #overlayUI { position:absolute; top:8px; left:8px; right:8px; display:flex; justify-content:space-between; align-items:center; pointer-events:none; }
+      #overlayUI .right { pointer-events:auto; }
+      .badge { background:#1f2937; color:#fff; padding:6px 10px; border-radius:8px; font-weight:700; box-shadow:0 2px 8px rgba(0,0,0,.25) }
+      /* Modal de Game Over */
+      .modal { position:absolute; inset:0; display:none; align-items:center; justify-content:center; backdrop-filter: blur(2px); }
+      .modal.show { display:flex; }
+      .modal .card { background:#0b1220; color:#e2e8f0; border-radius:16px; padding:24px; width:min(92%, 420px); box-shadow:0 12px 40px rgba(0,0,0,.4); text-align:center; }
+      .modal .title { font-size:22px; font-weight:800; margin-bottom:10px; }
+      .modal .score { font-size:18px; margin:8px 0 16px; }
+      .modal button { background:#2563eb; color:#fff; border:0; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer; }
+      .modal button:hover { background:#1d4ed8; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Tiro ao Alvo</h1>
+        <div class="small">Estoure balões VERDES encostando a ponta do dedo indicador na tela (via câmera)</div>
+      </header>
+
+      <div class="stage">
+        <div class="video-wrap">
+          <video id="video" playsinline muted></video>
+          <canvas id="output" width="800" height="600"></canvas>
+
+          <div id="overlayUI">
+            <div class="hud">
+              <div class="chip">Pontos <span class="value" id="score">0</span></div>
+              <div class="chip">Tempo <span class="value" id="timer">60</span>s</div>
+              <div class="chip">Dificuldade <span class="value" id="level">1</span></div>
+            </div>
+            <div class="right">
+              <span class="badge" id="status">Aguardando câmera…</span>
+            </div>
+          </div>
+
+          <!-- Modal Game Over -->
+          <div id="gameOver" class="modal">
+            <div class="card">
+              <div class="title">Fim de jogo!</div>
+              <div class="score">Sua pontuação: <strong id="finalScore">0</strong></div>
+              <button id="playAgainBtn">Jogar novamente</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:260px">
+          <div class="panel">
+            <div class="controls">
+              <button id="startBtn" class="primary">Iniciar câmera</button>
+              <button id="retryBtn">Tentar novamente</button>
+              <button id="stopBtn">Parar</button>
+            </div>
+
+            <div class="hint">Dica: mantenha o dedo indicador visível para mirar. Encoste no balão para estourá-lo.</div>
+            <div class="help" id="helpBox"></div>
+          </div>
+          <div class="debug" id="debug"></div>
+        </div>
+      </div>
+
+      <div class="hint">Observação: use HTTPS ou <strong>localhost</strong> para liberar o acesso à câmera.</div>
+    </div>
+
+    <!-- MediaPipe Hands + utils via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+    <script src="assets/js/balloon.js"></script>
+  </body>
+  </html>
+
+

@@ -1,3 +1,13 @@
+### Demo em vídeo
+
+Assista ao demo abaixo para ver o jogo em ação:
+
+<video src="demo.mov" controls playsinline style="max-width: 100%; height: auto; border-radius: 8px;"></video>
+
+Se o player não carregar, você pode baixar e assistir ao arquivo `demo.mov`.
+
+---
+
 ## Pedra, Papel e Tesoura com a mão (MediaPipe Hands)
 
 Jogo de pedra, papel e tesoura controlado por gestos de mão usando a câmera do navegador e a biblioteca MediaPipe Hands. Faça um joinha (👍) para iniciar uma contagem regressiva de 3 segundos e, em seguida, mostre sua jogada: pedra (✊), papel (✋) ou tesoura (✌️). O app detecta sua jogada, sorteia a jogada do computador e exibe o vencedor com animações.

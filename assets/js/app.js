@@ -34,6 +34,8 @@ const rpsTimed = []; // {t:number,v:string}[]
 
 // usado quando o vídeo vem de arquivo (não de getUserMedia)
 let rafId = null;
+// Suavização visual para desenho da mão em cartoon
+let lastHandPts = null;
 
 // ====== Inicialização segura após carregamento dos scripts ======
 window.addEventListener('load', init);
@@ -198,20 +200,33 @@ function startManualLoop() {
 // ====== Processamento de resultados ======
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#111';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  drawStylizedBackground();
 }
 
 function onResults(results) {
   ctx.save();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (results && results.image) ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+  // Fundo estilizado com vídeo de fundo em leve transparência
+  drawStylizedBackground();
+  // Não desenhamos o vídeo completo. Exibiremos um "sticker" de mão no lugar
 
   if (results && results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
     const landmarks = results.multiHandLandmarks[0];
     try {
-      if (typeof drawConnectors !== 'undefined') drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#00FFAA', lineWidth: 2 });
-      if (typeof drawLandmarks !== 'undefined') drawLandmarks(ctx, landmarks, { color: '#FF0066', lineWidth: 1 });
+      // Apenas traços (conectores) e pontos dos landmarks
+      if (typeof drawConnectors !== 'undefined') {
+        drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#fbbf24', lineWidth: 4 });
+      }
+      if (typeof drawLandmarks !== 'undefined') {
+        drawLandmarks(ctx, landmarks, { color: '#ffffff', lineWidth: 2 });
+      }
+      // Pontos um pouco maiores para dar destaque
+      ctx.fillStyle = '#ffffff';
+      for (const p of landmarks) {
+        const x = p.x * canvas.width;
+        const y = p.y * canvas.height;
+        ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill();
+      }
     } catch (e) { writeDebug('Erro ao desenhar landmarks: ' + e.message); }
 
     const isThumbsUp = detectThumbsUp(landmarks);
@@ -251,6 +266,87 @@ function onResults(results) {
   }
 
   ctx.restore();
+}
+
+// ====== Fundo estilizado ======
+function drawStylizedBackground() {
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grad.addColorStop(0, '#0ea5e9');
+  grad.addColorStop(1, '#1e293b');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// Mão "sticker": desenha uma mão simplificada e sólida baseada nos landmarks
+function drawHandSticker(lms) {
+  const pts = lms.map(p => ({ x: p.x * canvas.width, y: p.y * canvas.height }));
+  const wrist = pts[0];
+  const mid = pts[12];
+  const scale = Math.max(0.8, Math.min(1.6, euclideanDistance(wrist, mid) * 0.004));
+
+  // Contorno simples da palma (punho → polegar → pontas → lateral mindinho)
+  const outlineIdx = [0, 1, 2, 4, 8, 12, 16, 20, 19, 18, 17];
+  const outline = outlineIdx.map(i => pts[i]);
+  const smooth = smoothClosedChaikin(outline, 2);
+
+  ctx.save();
+  // Sombra
+  ctx.shadowColor = '#0005'; ctx.shadowBlur = 10;
+  // Preenchimento "sticker" (cor sólida vibrante)
+  ctx.fillStyle = '#fbbf24'; // amarelo/laranja
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth = 6 * scale;
+  ctx.beginPath();
+  ctx.moveTo(smooth[0].x, smooth[0].y);
+  for (let i = 1; i < smooth.length; i++) ctx.lineTo(smooth[i].x, smooth[i].y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Unhas/pontas como círculos sólidos para dar acabamento
+  const tips = [4, 8, 12, 16, 20];
+  ctx.fillStyle = '#fde68a';
+  for (const t of tips) {
+    const p = pts[t];
+    ctx.beginPath(); ctx.arc(p.x, p.y, 10 * scale, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// Convex hull (Monotone chain) para recortar a mão
+function computeConvexHull(points) {
+  const pts = points.slice().sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+  if (pts.length <= 1) return pts;
+  const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const lower = [];
+  for (const p of pts) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop();
+    lower.push(p);
+  }
+  const upper = [];
+  for (let i = pts.length - 1; i >= 0; i--) {
+    const p = pts[i];
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
+    upper.push(p);
+  }
+  upper.pop(); lower.pop();
+  return lower.concat(upper);
+}
+
+// Suavização de polígonos fechados (Chaikin) para contorno da luva
+function smoothClosedChaikin(points, iterations = 2) {
+  let pts = points.slice();
+  for (let it = 0; it < iterations; it++) {
+    const out = [];
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i];
+      const b = pts[(i + 1) % pts.length];
+      out.push({ x: a.x * 0.75 + b.x * 0.25, y: a.y * 0.75 + b.y * 0.25 });
+      out.push({ x: a.x * 0.25 + b.x * 0.75, y: a.y * 0.25 + b.y * 0.75 });
+    }
+    pts = out;
+  }
+  return pts;
 }
 
 // ====== Lógica do jogo (classificação e overlays) ======
